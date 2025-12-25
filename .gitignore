@@ -1,11 +1,9 @@
 mqjs
 mqjs_stdlib
 head
-/patching/patched
 
-
-patched
-*-build
+build-*
+scratch-*
 
 ### Nick's workflow gitignore
 *.scratch

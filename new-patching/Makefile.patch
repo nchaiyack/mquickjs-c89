@@ -1,13 +1,12 @@
---- ../Makefile 2025-12-24 16:00:21.287216481 +0000
-+++ ../Makefile.scratch 2025-12-24 17:00:02.858295323 +0000
-@@ -27,8 +27,8 @@
- 
+--- ../Makefile 2025-12-25 04:06:36.028998722 +0000
++++ ../Makefile.scratch 2025-12-25 04:10:26.333988887 +0000
+@@ -28,7 +28,7 @@
  HOST_CC=gcc
  CC=$(CROSS_PREFIX)gcc
--CFLAGS=-Wall -g -MMD -D_GNU_SOURCE -fno-math-errno -fno-trapping-math
+ CFLAGS=-Wall -g -MMD -D_GNU_SOURCE -fno-math-errno -fno-trapping-math
 -HOST_CFLAGS=-Wall -g -MMD -D_GNU_SOURCE -fno-math-errno -fno-trapping-math
-+CFLAGS=-Wall -g -MMD -D_GNU_SOURCE -fno-math-errno -fno-trapping-math -std=c89 -pedantic -Werror
-+HOST_CFLAGS=-Wall -g -MMD -D_GNU_SOURCE -fno-math-errno -fno-trapping-math -std=c89 -pedantic -Werror
++HOST_CFLAGS=-Wall -g -MMD -D_GNU_SOURCE -fno-math-errno -fno-trapping-math -std=C89 -pedantic -Werror
  ifdef CONFIG_WERROR
  CFLAGS+=-Werror
  HOST_CFLAGS+=-Werror
+
