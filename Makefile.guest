@@ -1,0 +1,118 @@
+# Guest build Makefile (pre-generated headers required).
+#
+# The following files must already exist in the source tree:
+#   mquickjs_atom.h, mqjs_stdlib.h, example_stdlib.h
+#
+# This Makefile intentionally omits build-time generator programs.
+
+# Optional strictness (GCC/Clang): add
+#   -Wextra -Wshadow -Wconversion -Wmissing-prototypes
+# (may require additional code fixes)
+#CONFIG_PROFILE=y
+#CONFIG_X86_32=y
+#CONFIG_ARM32=y
+#CONFIG_WIN32=y
+#CONFIG_SOFTFLOAT=y
+#CONFIG_ASAN=y
+#CONFIG_GPROF=y
+CONFIG_SMALL=y
+
+ifdef CONFIG_WIN32
+  ifdef CONFIG_X86_32
+    CROSS_PREFIX?=i686-w64-mingw32-
+  else
+    CROSS_PREFIX?=x86_64-w64-mingw32-
+  endif
+  EXE=.exe
+else
+  CROSS_PREFIX?=
+  EXE=
+endif
+
+CC=$(CROSS_PREFIX)gcc
+CFLAGS=-Wall -Wstrict-prototypes -g -MMD -D_GNU_SOURCE -fno-math-errno -fno-trapping-math -std=c89 -pedantic -Werror
+ifdef CONFIG_SMALL
+CFLAGS+=-Os
+else
+CFLAGS+=-O2
+endif
+ifdef CONFIG_SOFTFLOAT
+CFLAGS+=-msoft-float
+CFLAGS+=-DUSE_SOFTFLOAT
+endif
+LDFLAGS=-g
+ifdef CONFIG_GPROF
+CFLAGS+=-p
+LDFLAGS+=-p
+endif
+ifdef CONFIG_ASAN
+CFLAGS+=-fsanitize=address -fno-omit-frame-pointer
+LDFLAGS+=-fsanitize=address -fno-omit-frame-pointer
+endif
+ifdef CONFIG_X86_32
+CFLAGS+=-m32
+LDFLAGS+=-m32
+endif
+ifdef CONFIG_PROFILE
+CFLAGS+=-p
+LDFLAGS+=-p
+endif
+ifdef CONFIG_BIG_ENDIAN
+CFLAGS+=-DWORDS_BIGENDIAN
+endif
+ifdef CONFIG_LITTLE_ENDIAN
+CFLAGS+=-UWORDS_BIGENDIAN
+endif
+
+PROGS=mqjs$(EXE) example$(EXE)
+TEST_PROGS=dtoa_test libm_test
+
+all: $(PROGS)
+
+MQJS_OBJS=mqjs.o readline_tty.o readline.o mquickjs.o dtoa.o libm.o cutils.o
+LIBS=-lm
+
+mqjs$(EXE): $(MQJS_OBJS)
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+mquickjs.o: mquickjs_atom.h
+mqjs.o: mqjs_stdlib.h
+
+example.o: example_stdlib.h
+example$(EXE): example.o mquickjs.o dtoa.o libm.o cutils.o
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+test: mqjs example
+	./mqjs tests/test_closure.js
+	./mqjs tests/test_language.js
+	./mqjs tests/test_loop.js
+	./mqjs tests/test_builtin.js
+	./mqjs -o test_builtin.bin tests/test_builtin.js
+	./mqjs test_builtin.bin
+	./example tests/test_rect.js
+
+microbench: mqjs
+	./mqjs tests/microbench.js
+
+octane: mqjs
+	./mqjs --memory-limit 256M tests/octane/run.js
+
+size: mqjs
+	size mqjs mqjs.o readline.o cutils.o dtoa.o libm.o mquickjs.o
+
+dtoa_test: tests/dtoa_test.o dtoa.o cutils.o tests/gay-fixed.o tests/gay-precision.o tests/gay-shortest.o
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+libm_test: tests/libm_test.o libm.o
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+rempio2_test: tests/rempio2_test.o libm.o
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+clean:
+	rm -f *.o *.d *~ tests/*.o tests/*.d tests/*~ test_builtin.bin $(PROGS) $(TEST_PROGS)
+
+-include $(wildcard *.d)

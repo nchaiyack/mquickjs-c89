@@ -73,23 +73,23 @@ DEF(     new_target, 1, 0, 1, none)
 
 DEF(           drop, 1, 1, 0, none) /* a -> */
 DEF(            nip, 1, 2, 1, none) /* a b -> b */
-//DEF(           nip1, 1, 3, 2, none) /* a b c -> b c */
+/* DEF(           nip1, 1, 3, 2, none) a b c -> b c */
 DEF(            dup, 1, 1, 2, none) /* a -> a a */
 DEF(           dup1, 1, 2, 3, none) /* a b -> a a b */
 DEF(           dup2, 1, 2, 4, none) /* a b -> a b a b */
-//DEF(           dup3, 1, 3, 6, none) /* a b c -> a b c a b c */
+/* DEF(           dup3, 1, 3, 6, none) a b c -> a b c a b c */
 DEF(        insert2, 1, 2, 3, none) /* obj a -> a obj a (dup_x1) */
 DEF(        insert3, 1, 3, 4, none) /* obj prop a -> a obj prop a (dup_x2) */
-//DEF(        insert4, 1, 4, 5, none) /* this obj prop a -> a this obj prop a */
+/* DEF(        insert4, 1, 4, 5, none) this obj prop a -> a this obj prop a */
 DEF(          perm3, 1, 3, 3, none) /* obj a b -> a obj b */
 DEF(          perm4, 1, 4, 4, none) /* obj prop a b -> a obj prop b */
-//DEF(          perm5, 1, 5, 5, none) /* this obj prop a b -> a this obj prop b */
+/* DEF(          perm5, 1, 5, 5, none) this obj prop a b -> a this obj prop b */
 DEF(           swap, 1, 2, 2, none) /* a b -> b a */
-//DEF(          swap2, 1, 4, 4, none) /* a b c d -> c d a b */
+/* DEF(          swap2, 1, 4, 4, none) a b c d -> c d a b */
 DEF(          rot3l, 1, 3, 3, none) /* x a b -> a b x */
-//DEF(          rot3r, 1, 3, 3, none) /* a b x -> x a b */
-//DEF(          rot4l, 1, 4, 4, none) /* x a b c -> a b c x */
-//DEF(          rot5l, 1, 5, 5, none) /* x a b c d -> a b c d x */
+/* DEF(          rot3r, 1, 3, 3, none) a b x -> x a b */
+/* DEF(          rot4l, 1, 4, 4, none) x a b c -> a b c x */
+/* DEF(          rot5l, 1, 5, 5, none) x a b c d -> a b c d x */
 
 DEF(call_constructor, 3, 1, 1, npop) /* func args... -> ret (arguments are not counted in n_pop) */
 DEF(           call, 3, 1, 1, npop) /* func args... -> ret (arguments are not counted in n_pop) */

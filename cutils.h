@@ -27,15 +27,14 @@
 
 #include <stdlib.h>
 #include <inttypes.h>
+#include "porting.h"
 
-/* set if CPU is big endian */
-#undef WORDS_BIGENDIAN
+/* set if CPU is big endian (see porting.h) */
 
 #define likely(x)       __builtin_expect(!!(x), 1)
 #define unlikely(x)     __builtin_expect(!!(x), 0)
-#define force_inline inline __attribute__((always_inline))
+#define force_inline __attribute__((always_inline))
 #define no_inline __attribute__((noinline))
-#define __maybe_unused __attribute__((unused))
 
 #define xglue(x, y) x ## y
 #define glue(x, y) xglue(x, y)
@@ -57,7 +56,7 @@ typedef int BOOL;
 #ifndef FALSE
 enum {
     FALSE = 0,
-    TRUE = 1,
+    TRUE = 1
 };
 #endif
 
@@ -66,7 +65,7 @@ char *pstrcat(char *buf, int buf_size, const char *s);
 int strstart(const char *str, const char *val, const char **ptr);
 int has_suffix(const char *str, const char *suffix);
 
-static inline int max_int(int a, int b)
+static __maybe_unused int max_int(int a, int b)
 {
     if (a > b)
         return a;
@@ -74,7 +73,7 @@ static inline int max_int(int a, int b)
         return b;
 }
 
-static inline int min_int(int a, int b)
+static __maybe_unused int min_int(int a, int b)
 {
     if (a < b)
         return a;
@@ -82,7 +81,7 @@ static inline int min_int(int a, int b)
         return b;
 }
 
-static inline uint32_t max_uint32(uint32_t a, uint32_t b)
+static __maybe_unused uint32_t max_uint32(uint32_t a, uint32_t b)
 {
     if (a > b)
         return a;
@@ -90,7 +89,7 @@ static inline uint32_t max_uint32(uint32_t a, uint32_t b)
         return b;
 }
 
-static inline uint32_t min_uint32(uint32_t a, uint32_t b)
+static __maybe_unused uint32_t min_uint32(uint32_t a, uint32_t b)
 {
     if (a < b)
         return a;
@@ -98,7 +97,7 @@ static inline uint32_t min_uint32(uint32_t a, uint32_t b)
         return b;
 }
 
-static inline int64_t max_int64(int64_t a, int64_t b)
+static __maybe_unused int64_t max_int64(int64_t a, int64_t b)
 {
     if (a > b)
         return a;
@@ -106,7 +105,7 @@ static inline int64_t max_int64(int64_t a, int64_t b)
         return b;
 }
 
-static inline int64_t min_int64(int64_t a, int64_t b)
+static __maybe_unused int64_t min_int64(int64_t a, int64_t b)
 {
     if (a < b)
         return a;
@@ -114,7 +113,7 @@ static inline int64_t min_int64(int64_t a, int64_t b)
         return b;
 }
 
-static inline size_t max_size_t(size_t a, size_t b)
+static __maybe_unused size_t max_size_t(size_t a, size_t b)
 {
     if (a > b)
         return a;
@@ -122,7 +121,7 @@ static inline size_t max_size_t(size_t a, size_t b)
         return b;
 }
 
-static inline size_t min_size_t(size_t a, size_t b)
+static __maybe_unused size_t min_size_t(size_t a, size_t b)
 {
     if (a < b)
         return a;
@@ -131,25 +130,25 @@ static inline size_t min_size_t(size_t a, size_t b)
 }
 
 /* WARNING: undefined if a = 0 */
-static inline int clz32(unsigned int a)
+static __maybe_unused int clz32(unsigned int a)
 {
     return __builtin_clz(a);
 }
 
 /* WARNING: undefined if a = 0 */
-static inline int clz64(uint64_t a)
+static __maybe_unused int clz64(uint64_t a)
 {
     return __builtin_clzll(a);
 }
 
 /* WARNING: undefined if a = 0 */
-static inline int ctz32(unsigned int a)
+static __maybe_unused int ctz32(unsigned int a)
 {
     return __builtin_ctz(a);
 }
 
 /* WARNING: undefined if a = 0 */
-static inline int ctz64(uint64_t a)
+static __maybe_unused int ctz64(uint64_t a)
 {
     return __builtin_ctzll(a);
 }
@@ -166,78 +165,78 @@ struct __attribute__((packed)) packed_u16 {
     uint16_t v;
 };
 
-static inline uint64_t get_u64(const uint8_t *tab)
+static __maybe_unused uint64_t get_u64(const uint8_t *tab)
 {
     return ((const struct packed_u64 *)tab)->v;
 }
 
-static inline int64_t get_i64(const uint8_t *tab)
+static __maybe_unused int64_t get_i64(const uint8_t *tab)
 {
     return (int64_t)((const struct packed_u64 *)tab)->v;
 }
 
-static inline void put_u64(uint8_t *tab, uint64_t val)
+static __maybe_unused void put_u64(uint8_t *tab, uint64_t val)
 {
     ((struct packed_u64 *)tab)->v = val;
 }
 
-static inline uint32_t get_u32(const uint8_t *tab)
+static __maybe_unused uint32_t get_u32(const uint8_t *tab)
 {
     return ((const struct packed_u32 *)tab)->v;
 }
 
-static inline int32_t get_i32(const uint8_t *tab)
+static __maybe_unused int32_t get_i32(const uint8_t *tab)
 {
     return (int32_t)((const struct packed_u32 *)tab)->v;
 }
 
-static inline void put_u32(uint8_t *tab, uint32_t val)
+static __maybe_unused void put_u32(uint8_t *tab, uint32_t val)
 {
     ((struct packed_u32 *)tab)->v = val;
 }
 
-static inline uint32_t get_u16(const uint8_t *tab)
+static __maybe_unused uint32_t get_u16(const uint8_t *tab)
 {
     return ((const struct packed_u16 *)tab)->v;
 }
 
-static inline int32_t get_i16(const uint8_t *tab)
+static __maybe_unused int32_t get_i16(const uint8_t *tab)
 {
     return (int16_t)((const struct packed_u16 *)tab)->v;
 }
 
-static inline void put_u16(uint8_t *tab, uint16_t val)
+static __maybe_unused void put_u16(uint8_t *tab, uint16_t val)
 {
     ((struct packed_u16 *)tab)->v = val;
 }
 
-static inline uint32_t get_u8(const uint8_t *tab)
+static __maybe_unused uint32_t get_u8(const uint8_t *tab)
 {
     return *tab;
 }
 
-static inline int32_t get_i8(const uint8_t *tab)
+static __maybe_unused int32_t get_i8(const uint8_t *tab)
 {
     return (int8_t)*tab;
 }
 
-static inline void put_u8(uint8_t *tab, uint8_t val)
+static __maybe_unused void put_u8(uint8_t *tab, uint8_t val)
 {
     *tab = val;
 }
 
-static inline uint16_t bswap16(uint16_t x)
+static __maybe_unused uint16_t bswap16(uint16_t x)
 {
     return (x >> 8) | (x << 8);
 }
 
-static inline uint32_t bswap32(uint32_t v)
+static __maybe_unused uint32_t bswap32(uint32_t v)
 {
     return ((v & 0xff000000) >> 24) | ((v & 0x00ff0000) >>  8) |
         ((v & 0x0000ff00) <<  8) | ((v & 0x000000ff) << 24);
 }
 
-static inline uint64_t bswap64(uint64_t v)
+static __maybe_unused uint64_t bswap64(uint64_t v)
 {
     return ((v & ((uint64_t)0xff << (7 * 8))) >> (7 * 8)) | 
         ((v & ((uint64_t)0xff << (6 * 8))) >> (5 * 8)) | 
@@ -249,14 +248,22 @@ static inline uint64_t bswap64(uint64_t v)
         ((v & ((uint64_t)0xff << (0 * 8))) << (7 * 8));
 }
 
-static inline uint32_t get_be32(const uint8_t *d)
+static __maybe_unused uint32_t get_be32(const uint8_t *d)
 {
+#if defined(WORDS_BIGENDIAN)
+    return get_u32(d);
+#else
     return bswap32(get_u32(d));
+#endif
 }
 
-static inline void put_be32(uint8_t *d, uint32_t v)
+static __maybe_unused void put_be32(uint8_t *d, uint32_t v)
 {
+#if defined(WORDS_BIGENDIAN)
+    put_u32(d, v);
+#else
     put_u32(d, bswap32(v));
+#endif
 }
 
 #define UTF8_CHAR_LEN_MAX 4
@@ -267,7 +274,7 @@ int __utf8_get(const uint8_t *p, size_t *plen);
 
 /* Note: at most 21 bits are encoded. At most UTF8_CHAR_LEN_MAX bytes
    are output. */
-static inline size_t unicode_to_utf8(uint8_t *buf, unsigned int c)
+static __maybe_unused size_t unicode_to_utf8(uint8_t *buf, unsigned int c)
 {
     if (c < 0x80) {
         buf[0] = c;
@@ -279,7 +286,7 @@ static inline size_t unicode_to_utf8(uint8_t *buf, unsigned int c)
 
 /* return -1 in case of error. Surrogates are accepted. max_len must
    be >= 1. *plen is set in case of error and always >= 1. */
-static inline int unicode_from_utf8(const uint8_t *buf, size_t max_len, size_t *plen)
+static __maybe_unused int unicode_from_utf8(const uint8_t *buf, size_t max_len, size_t *plen)
 {
     if (buf[0] < 0x80) {
         *plen = 1;
@@ -291,7 +298,7 @@ static inline int unicode_from_utf8(const uint8_t *buf, size_t max_len, size_t *
 
 /* Warning: no error checking is done so the UTF-8 encoding must be
    validated before. */
-static force_inline int utf8_get(const uint8_t *buf, size_t *plen)
+static __maybe_unused force_inline int utf8_get(const uint8_t *buf, size_t *plen)
 {
     if (likely(buf[0] < 0x80)) {
         *plen = 1;
@@ -301,7 +308,7 @@ static force_inline int utf8_get(const uint8_t *buf, size_t *plen)
     }
 }
 
-static inline int from_hex(int c)
+static __maybe_unused int from_hex(int c)
 {
     if (c >= '0' && c <= '9')
         return c - '0';
@@ -313,7 +320,7 @@ static inline int from_hex(int c)
         return -1;
 }
 
-static inline uint64_t float64_as_uint64(double d)
+static __maybe_unused uint64_t float64_as_uint64(double d)
 {
     union {
         double d;
@@ -323,7 +330,7 @@ static inline uint64_t float64_as_uint64(double d)
     return u.u64;
 }
 
-static inline double uint64_as_float64(uint64_t u64)
+static __maybe_unused double uint64_as_float64(uint64_t u64)
 {
     union {
         double d;
@@ -338,14 +345,14 @@ typedef union {
     float f;
 } f32_union;
 
-static inline uint32_t float_as_uint(float f)
+static __maybe_unused uint32_t float_as_uint(float f)
 {
     f32_union u;
     u.f = f;
     return u.u32;
 }
 
-static inline float uint_as_float(uint32_t v)
+static __maybe_unused float uint_as_float(uint32_t v)
 {
     f32_union u;
     u.u32 = v;

@@ -399,7 +399,7 @@ static void term_up_char(ReadlineState *s)
     int idx;
     if (s->term_hist_entry == -1) {
         s->term_hist_entry = s->term_history_size;
-        // XXX: should save current contents to history
+        /* XXX: should save current contents to history*/
     }
     if (s->term_hist_entry == 0)
         return;
@@ -581,7 +581,7 @@ static int readline_handle_char(ReadlineState *s, int ch)
             term_eol(s);
             break;
         case 9: /* TAB */
-            //term_completion(s);
+            /*term_completion(s);*/
             break;
         case 10:
         case 13:
@@ -677,7 +677,16 @@ static int readline_handle_char(ReadlineState *s, int ch)
             s->term_esc_param = 0;
             s->term_esc_state = IS_CSI;
             break;
-        case '0' ... '9':
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
             s->term_esc_param = s->term_esc_param * 10 + (ch - '0');
             s->term_esc_state = IS_CSI;
             break;

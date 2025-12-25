@@ -26,6 +26,7 @@
 #define MQUICKJS_H
 
 #include <inttypes.h>
+#include "porting.h"
 
 #if defined(__GNUC__) || defined(__clang__)
 #define __js_printf_like(f, a)   __attribute__((format(printf, f, a)))
@@ -33,7 +34,7 @@
 #define __js_printf_like(a, b)
 #endif
 
-#if INTPTR_MAX >= INT64_MAX
+#ifdef JS_PTR64
 #define JS_PTR64 /* pointers are 64 bit wide instead of 32 bit wide */
 #endif
 
@@ -65,9 +66,9 @@ enum {
     JS_TAG_SHORT_FUNC  = JS_TAG_SPECIAL | (4 << 2), /* (5 bits) */
     JS_TAG_UNINITIALIZED = JS_TAG_SPECIAL | (5 << 2), /* (5 bits) */
     JS_TAG_STRING_CHAR  = JS_TAG_SPECIAL | (6 << 2), /* (5 bits) */
-    JS_TAG_CATCH_OFFSET = JS_TAG_SPECIAL | (7 << 2), /* (5 bits) */
+    JS_TAG_CATCH_OFFSET = JS_TAG_SPECIAL | (7 << 2) /* (5 bits) */
 #ifdef JS_USE_SHORT_FLOAT
-    JS_TAG_SHORT_FLOAT  = 5,  /* 3 bits */
+    , JS_TAG_SHORT_FLOAT  = 5  /* 3 bits */
 #endif
 };
 
@@ -121,13 +122,13 @@ typedef enum {
     JS_CLASS_FLOAT32_ARRAY,
     JS_CLASS_FLOAT64_ARRAY,
 
-    JS_CLASS_USER, /* user classes start from this value */
+    JS_CLASS_USER /* user classes start from this value */
 } JSObjectClassEnum;
 
 /* predefined functions */
 typedef enum {
     JS_CFUNCTION_bound,
-    JS_CFUNCTION_USER, /* user functions start from this value */
+    JS_CFUNCTION_USER /* user functions start from this value */
 } JSCFunctionEnum;
 
 /* temporary buffer to hold C strings */
@@ -156,49 +157,49 @@ JSValue JS_NewInt32(JSContext *ctx, int32_t val);
 JSValue JS_NewUint32(JSContext *ctx, uint32_t val);
 JSValue JS_NewInt64(JSContext *ctx, int64_t val);
 
-static inline JS_BOOL JS_IsInt(JSValue v)
+static __maybe_unused JS_BOOL JS_IsInt(JSValue v)
 {
     return (v & 1) == JS_TAG_INT;
 }
 
-static inline JS_BOOL JS_IsPtr(JSValue v)
+static __maybe_unused JS_BOOL JS_IsPtr(JSValue v)
 {
     return (v & (JSW - 1)) == JS_TAG_PTR;
 }
 
 #ifdef JS_USE_SHORT_FLOAT
-static inline JS_BOOL JS_IsShortFloat(JSValue v)
+static __maybe_unused JS_BOOL JS_IsShortFloat(JSValue v)
 {
     return (v & (JSW - 1)) == JS_TAG_SHORT_FLOAT;
 }
 #endif
 
-static inline JS_BOOL JS_IsBool(JSValue v)
+static __maybe_unused JS_BOOL JS_IsBool(JSValue v)
 {
     return JS_VALUE_GET_SPECIAL_TAG(v) == JS_TAG_BOOL;
 }
 
-static inline JS_BOOL JS_IsNull(JSValue v)
+static __maybe_unused JS_BOOL JS_IsNull(JSValue v)
 {
     return v == JS_NULL;
 }
 
-static inline JS_BOOL JS_IsUndefined(JSValue v)
+static __maybe_unused JS_BOOL JS_IsUndefined(JSValue v)
 {
     return v == JS_UNDEFINED;
 }
 
-static inline JS_BOOL JS_IsUninitialized(JSValue v)
+static __maybe_unused JS_BOOL JS_IsUninitialized(JSValue v)
 {
     return v == JS_UNINITIALIZED;
 }
 
-static inline JS_BOOL JS_IsException(JSValue v)
+static __maybe_unused JS_BOOL JS_IsException(JSValue v)
 {
     return v == JS_EXCEPTION;
 }
 
-static inline JSValue JS_NewBool(int val)
+static __maybe_unused JSValue JS_NewBool(int val)
 {
     return JS_VALUE_MAKE_SPECIAL(JS_TAG_BOOL, (val != 0));
 }
@@ -222,7 +223,7 @@ typedef enum JSCFunctionDefEnum {  /* XXX: should rename for namespace isolation
     JS_CFUNC_constructor,
     JS_CFUNC_constructor_magic,
     JS_CFUNC_generic_params,
-    JS_CFUNC_f_f,
+    JS_CFUNC_f_f
 } JSCFunctionDefEnum;
 
 typedef union JSCFunctionType {
@@ -269,12 +270,12 @@ void JS_SetRandomSeed(JSContext *ctx, uint64_t seed);
 JSValue JS_GetGlobalObject(JSContext *ctx);
 JSValue JS_Throw(JSContext *ctx, JSValue obj);
 JSValue __js_printf_like(3, 4) JS_ThrowError(JSContext *ctx, JSObjectClassEnum error_num,
-                                           const char *fmt, ...);
-#define JS_ThrowTypeError(ctx, fmt, ...) JS_ThrowError(ctx, JS_CLASS_TYPE_ERROR, fmt, ##__VA_ARGS__)
-#define JS_ThrowReferenceError(ctx, fmt, ...) JS_ThrowError(ctx, JS_CLASS_REFERENCE_ERROR, fmt, ##__VA_ARGS__)
-#define JS_ThrowInternalError(ctx, fmt, ...) JS_ThrowError(ctx, JS_CLASS_INTERNAL_ERROR, fmt, ##__VA_ARGS__)
-#define JS_ThrowRangeError(ctx, fmt, ...) JS_ThrowError(ctx, JS_CLASS_RANGE_ERROR, fmt, ##__VA_ARGS__)
-#define JS_ThrowSyntaxError(ctx, fmt, ...) JS_ThrowError(ctx, JS_CLASS_SYNTAX_ERROR, fmt, ##__VA_ARGS__)
+                                             const char *fmt, ...);
+JSValue __js_printf_like(2, 3) JS_ThrowTypeError(JSContext *ctx, const char *fmt, ...);
+JSValue __js_printf_like(2, 3) JS_ThrowReferenceError(JSContext *ctx, const char *fmt, ...);
+JSValue __js_printf_like(2, 3) JS_ThrowInternalError(JSContext *ctx, const char *fmt, ...);
+JSValue __js_printf_like(2, 3) JS_ThrowRangeError(JSContext *ctx, const char *fmt, ...);
+JSValue __js_printf_like(2, 3) JS_ThrowSyntaxError(JSContext *ctx, const char *fmt, ...);
 JSValue JS_ThrowOutOfMemory(JSContext *ctx);
 JSValue JS_GetPropertyStr(JSContext *ctx, JSValue this_obj, const char *str);
 JSValue JS_GetPropertyUint32(JSContext *ctx, JSValue obj, uint32_t idx);

@@ -1,3 +1,33 @@
+# Project Notes (C89 Porting + Guest Build Workflow)
+
+This repository has been updated to prioritize strict C89 compatibility and
+make cross-platform builds more reproducible.
+
+Key objectives
+
+- C89 compatibility patches: see `C89_PORTING_NOTES.md` for conventions and
+- Configurable endianness: goal is explicit handling for both little and big endian targets.
+- Plain C89 compiler compatibility: reduce reliance on nonstandard headers/extensions.
+  examples used throughout the codebase.
+- Guest build workflow: run `make build-guest-sourcetree` on a build host to
+  generate headers and a minimal source tree, then compile on the guest
+  platform using `Makefile.guest` in that tree.
+- 32-bit platforms (generic): ensure the guest toolchain is truly 32-bit
+  capable (ABI, headers, and libraries). The key switch is `JS_PTR64`: on
+  32-bit targets it should **not** be defined, which keeps `JSValue/JSWord`
+  at 32 bits. Use a 32-bit compiler/ABI flag as appropriate for the target;
+  the codebase is C89-first but still depends on common compiler extensions
+  (e.g., GCC/Clang attributes), so verify toolchain support on your target.
+- Pathological case (big-endian 32-bit): build a guest tree on a host with
+  `CONFIG_BIG_ENDIAN=y`, then compile on the target with the same flag and a
+  32-bit toolchain. Example: `make build-guest-sourcetree CONFIG_BIG_ENDIAN=y`
+  on host, then on target: `make -f Makefile CONFIG_BIG_ENDIAN=y` (add any
+  toolchain-specific 32-bit flags or `CC=...` as needed).
+
+----
+
+# Original README
+
 MicroQuickJS
 ============
 
@@ -373,4 +403,3 @@ MQuickJS is released under the MIT license.
 
 Unless otherwise specified, the MQuickJS sources are copyright Fabrice
 Bellard and Charlie Gordon.
-

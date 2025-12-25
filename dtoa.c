@@ -69,7 +69,7 @@ typedef intptr_t mp_size_t;
 /* the represented number is sum(i, tab[i]*2^(LIMB_BITS * i)) */
 typedef struct {
     int len; /* >= 1 */
-    limb_t tab[];
+    limb_t tab[1];
 } mpb_t;
 
 static limb_t mp_add_ui(limb_t *tab, limb_t b, size_t n)
@@ -104,7 +104,7 @@ static limb_t mp_mul1(limb_t *tabr, const limb_t *taba, limb_t n,
 }
 
 /* WARNING: d must be >= 2^(LIMB_BITS-1) */
-static inline limb_t udiv1norm_init(limb_t d)
+static limb_t udiv1norm_init(limb_t d)
 {
     limb_t a0, a1;
     a1 = -d - 1;
@@ -114,7 +114,7 @@ static inline limb_t udiv1norm_init(limb_t d)
 
 /* return the quotient and the remainder in '*pr'of 'a1*2^LIMB_BITS+a0
    / d' with 0 <= a1 < d. */
-static inline limb_t udiv1norm(limb_t *pr, limb_t a1, limb_t a0,
+static limb_t udiv1norm(limb_t *pr, limb_t a1, limb_t a0,
                                 limb_t d, limb_t d_inv)
 {
     limb_t n1m, n_adj, q, r, ah;
@@ -294,7 +294,7 @@ static uint32_t pow_ui_inv(uint32_t *pr_inv, int *pshift, uint32_t a, uint32_t b
 enum {
     JS_RNDN, /* round to nearest, ties to even */
     JS_RNDNA, /* round to nearest, ties away from zero */
-    JS_RNDZ,
+    JS_RNDZ
 };
 
 static int mpb_get_bit(const mpb_t *r, int k)
@@ -615,7 +615,7 @@ size_t i32toa(char *buf, int32_t n)
 #ifdef USE_FAST_INT
 size_t u64toa(char *buf, uint64_t n)
 {
-    if (n < 0x100000000) {
+    if (n < ((uint64_t)1 << 32)) { /* 0x100000000 */
         return u32toa(buf, n);
     } else {
         uint64_t n1;
@@ -624,7 +624,7 @@ size_t u64toa(char *buf, uint64_t n)
         
         n1 = n / 1000000000;
         n %= 1000000000;
-        if (n1 >= 0x100000000) {
+        if (n1 >= ((uint64_t)1 << 32)) { /* 0x100000000 */
             n2 = n1 / 1000000000;
             n1 = n1 % 1000000000;
             /* at most two digits */
@@ -1114,8 +1114,10 @@ int js_dtoa(char *buf, double d, int radix, int n_digits, int flags,
     mpb_t *tmp1, *mant_max;
     int fmt = flags & JS_DTOA_FORMAT_MASK;
 
-    tmp1 = dtoa_malloc(&mptr, sizeof(mpb_t) + sizeof(limb_t) * DBIGNUM_LEN_MAX);
-    mant_max = dtoa_malloc(&mptr, sizeof(mpb_t) + sizeof(limb_t) * MANT_LEN_MAX);
+    tmp1 = dtoa_malloc(&mptr, offsetof(mpb_t, tab) +
+                      sizeof(limb_t) * DBIGNUM_LEN_MAX);
+    mant_max = dtoa_malloc(&mptr, offsetof(mpb_t, tab) +
+                          sizeof(limb_t) * MANT_LEN_MAX);
     assert((mptr - tmp_mem->mem) <= sizeof(JSDTOATempMem) / sizeof(mptr[0]));
 
     radix_shift = ctz32(radix);
@@ -1164,7 +1166,7 @@ int js_dtoa(char *buf, double d, int radix, int n_digits, int flags,
     /* remove the bias */
     e -= 1022;
     /* d = 2^(e-53)*m */
-    //    printf("m=0x%016" PRIx64 " e=%d\n", m, e);
+    /*    printf("m=0x%016" PRIx64 " e=%d\n", m, e);*/
 #ifdef USE_FAST_INT
     if (fmt == JS_DTOA_FORMAT_FREE &&
         e >= 1 && e <= 53 &&
@@ -1216,7 +1218,7 @@ int js_dtoa(char *buf, double d, int radix, int n_digits, int flags,
             /* convert back to base 2 */
             mpb_set_u64(tmp1, mant);
             m1 = mul_pow_round_to_d(&e1, tmp1, radix1, radix_shift, E - P, JS_RNDN);
-            //            printf("P=%2d: m=0x%016" PRIx64 " e=%d m1=0x%016" PRIx64 " e1=%d\n", P, m, e, m1, e1);
+            /*            printf("P=%2d: m=0x%016" PRIx64 " e=%d m1=0x%016" PRIx64 " e1=%d\n", P, m, e, m1, e1);*/
             /* Note: (m, e) is never zero here, so the exponent for m1
                = 0 does not matter */
             if (m1 == m && e1 == e) {
@@ -1317,7 +1319,7 @@ int js_dtoa(char *buf, double d, int radix, int n_digits, int flags,
     return q - buf;
 }
 
-static inline int to_digit(int c)
+static int to_digit(int c)
 {
     if (c >= '0' && c <= '9')
         return c - '0';
@@ -1364,7 +1366,8 @@ double js_atod(const char *str, const char **pnext, int radix, int flags,
     BOOL is_bin_exp, is_zero, expn_overflow;
     uint64_t m, a;
 
-    tmp0 = dtoa_malloc(&mptr, sizeof(mpb_t) + sizeof(limb_t) * DBIGNUM_LEN_MAX);
+    tmp0 = dtoa_malloc(&mptr, offsetof(mpb_t, tab) +
+                      sizeof(limb_t) * DBIGNUM_LEN_MAX);
     assert((mptr - tmp_mem->mem) <= sizeof(JSATODTempMem) / sizeof(mptr[0]));
     /* optional separator between digits */
     sep = (flags & JS_ATOD_ACCEPT_UNDERSCORES) ? '_' : 256;

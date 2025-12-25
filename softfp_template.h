@@ -76,14 +76,14 @@
 
 static const F_UINT F_QNAN = (((F_UINT)EXP_MASK << MANT_SIZE) | ((F_UINT)1 << (MANT_SIZE - 1)));
 
-static inline F_UINT pack_sf(uint32_t a_sign, uint32_t a_exp, F_UINT a_mant)
+static F_UINT pack_sf(uint32_t a_sign, uint32_t a_exp, F_UINT a_mant)
 {
     return ((F_UINT)a_sign << (F_SIZE - 1)) |
         ((F_UINT)a_exp << MANT_SIZE) | 
         (a_mant & MANT_MASK);
 }
 
-static inline F_UINT unpack_sf(uint32_t *pa_sign, int32_t *pa_exp,
+static F_UINT unpack_sf(uint32_t *pa_sign, int32_t *pa_exp,
                                F_UINT a)
 {
     *pa_sign = a >> (F_SIZE - 1);
@@ -131,7 +131,7 @@ static F_UINT round_pack_sf(uint32_t a_sign, int a_exp, F_UINT a_mant,
     default:
     case RM_RDN:
     case RM_RUP:
-        //        printf("s=%d rm=%d m=%x\n", a_sign, rm, a_mant);
+        /*        printf("s=%d rm=%d m=%x\n", a_sign, rm, a_mant);*/
         if (a_sign ^ (rm & 1))
             addend = (1 << RND_SIZE) - 1;
         else
@@ -201,7 +201,7 @@ static F_UINT normalize_sf(uint32_t a_sign, int a_exp, F_UINT a_mant,
     return round_pack_sf(a_sign, a_exp, a_mant, rm FFLAGS_ARG);
 }
 
-static inline F_UINT normalize_subnormal_sf(int32_t *pa_exp, F_UINT a_mant)
+static F_UINT normalize_subnormal_sf(int32_t *pa_exp, F_UINT a_mant)
 {
     int shift;
     shift = MANT_SIZE - ((F_SIZE - 1 - clz(a_mant)));

@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-//#define JS_DTOA_DUMP_STATS
+/*#define JS_DTOA_DUMP_STATS*/
 
 /* maximum number of digits for fixed and frac formats */
 #define JS_DTOA_MAX_DIGITS 101

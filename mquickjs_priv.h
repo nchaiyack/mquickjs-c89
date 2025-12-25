@@ -6,13 +6,13 @@
 #include "libm.h"
 
 #define JS_DUMP /* 2.6 kB */
-//#define DUMP_EXEC
-//#define DUMP_FUNC_BYTECODE /* dump the bytecode of each compiled function */
-//#define DUMP_REOP /* dump regexp bytecode */
-//#define DUMP_GC
-//#define DUMP_TOKEN /* dump parsed tokens */
+/*#define DUMP_EXEC*/
+/*#define DUMP_FUNC_BYTECODE*/ /* dump the bytecode of each compiled function */
+/*#define DUMP_REOP*/ /* dump regexp bytecode */
+/*#define DUMP_GC*/
+/*#define DUMP_TOKEN*/ /* dump parsed tokens */
 /* run GC before at each malloc() and modify the allocated data pointers */
-//#define DEBUG_GC
+/*#define DEBUG_GC*/
 #if defined(DUMP_FUNC_BYTECODE) || defined(DUMP_EXEC)
 #define DUMP_BYTECODE /* include the dump_byte_code() function */
 #endif
@@ -34,7 +34,7 @@ enum {
     JS_MTAG_BYTE_ARRAY,
     JS_MTAG_VARREF,
 
-    JS_MTAG_COUNT,
+    JS_MTAG_COUNT
 };
 
 /* JS_MTAG_BITS bits are reserved at the start of every memory block */
@@ -48,7 +48,7 @@ typedef enum {
     JS_PROP_NORMAL,
     JS_PROP_GETSET, /* value is a two element JSValueArray */
     JS_PROP_VARREF, /* value is a JSVarRef (used for global variables) */
-    JS_PROP_SPECIAL, /* for the prototype and constructor properties in ROM */
+    JS_PROP_SPECIAL /* for the prototype and constructor properties in ROM */
 } JSPropTypeEnum;
 
 #define JS_MB_HEADER_DEF(tag) ((tag) << 1)
@@ -111,7 +111,7 @@ enum {
     magic_internalAt,
     magic_charAt,
     magic_charCodeAt,
-    magic_codePointAt,
+    magic_codePointAt
 };
 JSValue js_string_charAt(JSContext *ctx, JSValue *this_val,
                          int argc, JSValue *argv, int magic);

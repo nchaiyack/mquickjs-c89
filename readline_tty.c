@@ -142,7 +142,7 @@ int readline_tty_init(void)
                           |INLCR|IGNCR|ICRNL|IXON);
     tty.c_oflag |= OPOST;
     tty.c_lflag &= ~(ECHO|ECHONL|ICANON|IEXTEN);
-    //    tty.c_lflag &= ~ISIG; /* ctrl-C returns a signal */
+    /* tty.c_lflag &= ~ISIG; ctrl-C returns a signal */
     tty.c_cflag &= ~(CSIZE|PARENB);
     tty.c_cflag |= CS8;
     tty.c_cc[VMIN] = 1;
@@ -158,7 +158,7 @@ int readline_tty_init(void)
 
     atexit(term_exit);
 
-    //    fcntl(0, F_SETFL, O_NONBLOCK);
+    /* fcntl(0, F_SETFL, O_NONBLOCK); */
     n_cols = 80;
     if (ioctl(0, TIOCGWINSZ, &ws) == 0 &&
         ws.ws_col >= 4 && ws.ws_row >= 4) {

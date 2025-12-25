@@ -29,7 +29,7 @@
 #include "mquickjs_build.h"
 
 /* defined in mqjs_example.c */
-//#define CONFIG_CLASS_EXAMPLE
+/*#define CONFIG_CLASS_EXAMPLE*/
 
 static const JSPropDef js_object_proto[] = {
     JS_CFUNC_DEF("hasOwnProperty", 1, js_object_hasOwnProperty),

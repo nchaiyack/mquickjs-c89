@@ -28,6 +28,8 @@
 #include <stddef.h>
 #endif
 
+#include "porting.h"
+
 struct list_head {
     struct list_head *prev;
     struct list_head *next;
@@ -38,14 +40,14 @@ struct list_head {
 /* return the pointer of type 'type *' containing 'el' as field 'member' */
 #define list_entry(el, type, member) container_of(el, type, member)
 
-static inline void init_list_head(struct list_head *head)
+static __maybe_unused void init_list_head(struct list_head *head)
 {
     head->prev = head;
     head->next = head;
 }
 
 /* insert 'el' between 'prev' and 'next' */
-static inline void __list_add(struct list_head *el, 
+static __maybe_unused void __list_add(struct list_head *el, 
                               struct list_head *prev, struct list_head *next)
 {
     prev->next = el;
@@ -55,18 +57,18 @@ static inline void __list_add(struct list_head *el,
 }
 
 /* add 'el' at the head of the list 'head' (= after element head) */
-static inline void list_add(struct list_head *el, struct list_head *head)
+static __maybe_unused void list_add(struct list_head *el, struct list_head *head)
 {
     __list_add(el, head, head->next);
 }
 
 /* add 'el' at the end of the list 'head' (= before element head) */
-static inline void list_add_tail(struct list_head *el, struct list_head *head)
+static __maybe_unused void list_add_tail(struct list_head *el, struct list_head *head)
 {
     __list_add(el, head->prev, head);
 }
 
-static inline void list_del(struct list_head *el)
+static __maybe_unused void list_del(struct list_head *el)
 {
     struct list_head *prev, *next;
     prev = el->prev;
@@ -77,7 +79,7 @@ static inline void list_del(struct list_head *el)
     el->next = NULL; /* fail safe */
 }
 
-static inline int list_empty(struct list_head *el)
+static __maybe_unused int list_empty(struct list_head *el)
 {
     return el->next == el;
 }

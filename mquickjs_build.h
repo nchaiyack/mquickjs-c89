@@ -36,10 +36,10 @@ enum {
     JS_DEF_PROP_UNDEFINED,
     JS_DEF_PROP_STRING,
     JS_DEF_PROP_NULL,
-    JS_DEF_CLASS,
+    JS_DEF_CLASS
 };
 
-typedef struct JSClassDef JSClassDef;
+struct JSClassDef;
 
 typedef struct JSPropDef {
     int def_type;
@@ -58,7 +58,7 @@ typedef struct JSPropDef {
             const char *set_func_name;
         } getset;
         double f64;
-        const JSClassDef *class1;
+        const struct JSClassDef *class1;
         const char *str;
     } u;
 } JSPropDef;
@@ -71,7 +71,7 @@ typedef struct JSClassDef {
     const char *class_id;
     const JSPropDef *class_props; /* NULL if none */
     const JSPropDef *proto_props; /* NULL if none */
-    const JSClassDef *parent_class; /* NULL if none */
+    const struct JSClassDef *parent_class; /* NULL if none */
     const char *finalizer_name; /* "NULL" if none */
 } JSClassDef;
 

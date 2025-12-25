@@ -40,7 +40,7 @@
 #include "libm.h"
 
 /* define to enable softfloat support */
-//#define USE_SOFTFLOAT
+/*#define USE_SOFTFLOAT*/
 /* use less code for tan() but currently less precise */
 #define USE_TAN_SHORTCUT 
 
@@ -69,7 +69,7 @@ typedef enum {
     RM_RDN, /* Round Down (must be even) */
     RM_RUP, /* Round Up (must be odd) */
     RM_RMM, /* Round to Nearest, ties to Max Magnitude */
-    RM_RMMUP, /* only for rint_sf64(): round to nearest, ties to +inf (must be odd) */
+    RM_RMMUP /* only for rint_sf64(): round to nearest, ties to +inf (must be odd) */
 } RoundingModeEnum;
 
 #define FFLAG_INVALID_OP  (1 << 4)
@@ -81,11 +81,13 @@ typedef enum {
 typedef enum {
     FMINMAX_PROP, /* min(1, qNaN/sNaN) -> qNaN */
     FMINMAX_IEEE754_2008, /* min(1, qNaN) -> 1, min(1, sNaN) -> qNaN */
-    FMINMAX_IEEE754_201X, /* min(1, qNaN/sNaN) -> 1 */
+    FMINMAX_IEEE754_201X /* min(1, qNaN/sNaN) -> 1 */
 } SoftFPMinMaxTypeEnum;
 
 typedef uint32_t sfloat32;
 typedef uint64_t sfloat64;
+
+#define U64_FROM_U32(hi, lo) ((((uint64_t)(hi)) << 32) | (uint32_t)(lo))
 
 #define F_STATIC static __maybe_unused
 #define F_USE_FFLAGS 0
@@ -343,7 +345,7 @@ double js_round_inf(double x)
 double js_fabs(double x)
 {
     uint64_t a = float64_as_uint64(x);
-    return uint64_as_float64(a & 0x7fffffffffffffff);
+    return uint64_as_float64(a & U64_FROM_U32(0x7fffffffu, 0xffffffffu)); /* 0x7fffffffffffffff */
 }
 
 /************************************************************/
@@ -377,7 +379,7 @@ static uint32_t get_low_word(double d)
 static double zero_low(double x)
 {
     uint64_t u = float64_as_uint64(x);
-    u &= 0xffffffff00000000;
+    u &= U64_FROM_U32(0xffffffffu, 0x00000000u); /* 0xffffffff00000000 */
     return uint64_as_float64(u);
 }
 
@@ -797,31 +799,31 @@ static double __kernel_cos(double x, double y)
 
 /* T[i] = floor(2^(64*(T_LEN - i))/2pi) mod 2^64 */
 static const uint64_t T[T_LEN] = {
-    0x1580cc11bf1edaea,
-    0x9afed7ec47e35742,
-    0xcf41ce7de294a4ba,
-    0x5d49eeb1faf97c5e,
-    0xd3d18fd9a797fa8b,
-    0xdb4d9fb3c9f2c26d,
-    0xfbcbc462d6829b47,
-    0xc7fe25fff7816603,
-    0x272117e2ef7e4a0e,
-    0x4e64758e60d4ce7d,
-    0x3a671c09ad17df90,
-    0xba208d7d4baed121,
-    0x3f877ac72c4a69cf,
-    0x01924bba82746487,
-    0x6dc91b8e909374b8,
-    0x7f9458eaf7aef158,
-    0x36d8a5664f10e410,
-    0x7f09d5f47d4d3770,
-    0x28be60db9391054a, /* high part */
+    U64_FROM_U32(0x1580cc11u, 0xbf1edaeau), /* 0x1580cc11bf1edaea */
+    U64_FROM_U32(0x9afed7ecu, 0x47e35742u), /* 0x9afed7ec47e35742 */
+    U64_FROM_U32(0xcf41ce7du, 0xe294a4bau), /* 0xcf41ce7de294a4ba */
+    U64_FROM_U32(0x5d49eeb1u, 0xfaf97c5eu), /* 0x5d49eeb1faf97c5e */
+    U64_FROM_U32(0xd3d18fd9u, 0xa797fa8bu), /* 0xd3d18fd9a797fa8b */
+    U64_FROM_U32(0xdb4d9fb3u, 0xc9f2c26du), /* 0xdb4d9fb3c9f2c26d */
+    U64_FROM_U32(0xfbcbc462u, 0xd6829b47u), /* 0xfbcbc462d6829b47 */
+    U64_FROM_U32(0xc7fe25ffu, 0xf7816603u), /* 0xc7fe25fff7816603 */
+    U64_FROM_U32(0x272117e2u, 0xef7e4a0eu), /* 0x272117e2ef7e4a0e */
+    U64_FROM_U32(0x4e64758eu, 0x60d4ce7du), /* 0x4e64758e60d4ce7d */
+    U64_FROM_U32(0x3a671c09u, 0xad17df90u), /* 0x3a671c09ad17df90 */
+    U64_FROM_U32(0xba208d7du, 0x4baed121u), /* 0xba208d7d4baed121 */
+    U64_FROM_U32(0x3f877ac7u, 0x2c4a69cfu), /* 0x3f877ac72c4a69cf */
+    U64_FROM_U32(0x01924bbau, 0x82746487u), /* 0x01924bba82746487 */
+    U64_FROM_U32(0x6dc91b8eu, 0x909374b8u), /* 0x6dc91b8e909374b8 */
+    U64_FROM_U32(0x7f9458eau, 0xf7aef158u), /* 0x7f9458eaf7aef158 */
+    U64_FROM_U32(0x36d8a566u, 0x4f10e410u), /* 0x36d8a5664f10e410 */
+    U64_FROM_U32(0x7f09d5f4u, 0x7d4d3770u), /* 0x7f09d5f47d4d3770 */
+    U64_FROM_U32(0x28be60dbu, 0x9391054au), /* 0x28be60db9391054a */
 };
 
 /* PIO2[i] = floor(2^(64*(2 - i))*PI/4) mod 2^64 */
 static const uint64_t PIO4[2] = {
-    0xc4c6628b80dc1cd1,
-    0xc90fdaa22168c234,
+    U64_FROM_U32(0xc4c6628bu, 0x80dc1cd1u), /* 0xc4c6628b80dc1cd1 */
+    U64_FROM_U32(0xc90fdaa2u, 0x2168c234u), /* 0xc90fdaa22168c234 */
 };
 
 static uint64_t get_u64_at_bit(const uint64_t *tab, uint32_t tab_len,
@@ -858,7 +860,7 @@ static int rem_pio2_large(double x, double *y)
     /* multiply m by T[j:j+192] */
     j = T_LEN * 64 - (e - 1075) - 192;
     /* 53 <= j <= 1077 */
-    //    printf("m=0x%016" PRIx64 " e=%d j=%d\n", m, e, j);
+    /*    printf("m=0x%016" PRIx64 " e=%d j=%d\n", m, e, j);*/
     for(i = 0; i < 3; i++) {
         d[i] = get_u64_at_bit(T, T_LEN, j + i * 64);
     }
@@ -871,7 +873,7 @@ static int rem_pio2_large(double x, double *y)
     mul_u64(&r0, m, d[2]);
     c[1] += r0;
 
-    //    printf("c0=%016" PRIx64 " %016" PRIx64 "\n", c[1], c[0]);
+    /*    printf("c0=%016" PRIx64 " %016" PRIx64 "\n", c[1], c[0]);*/
 
     /* n = round(c[1]/2^62) */
     n = c[1] >> 62;
@@ -889,7 +891,7 @@ static int rem_pio2_large(double x, double *y)
         if (++c[0] == 0)
             c[1]++;
     }
-    //    printf("c1=%016" PRIx64 " %016" PRIx64 " n=%d sgn=%d\n", c[1], c[0], n, sgn);
+    /*    printf("c1=%016" PRIx64 " %016" PRIx64 " n=%d sgn=%d\n", c[1], c[0], n, sgn);*/
 
     /* c = c * (PI/2) (high 128 bits of the product) */
     r1 = mul_u64(&r0, c[0], PIO4[1]);
@@ -911,7 +913,7 @@ static int rem_pio2_large(double x, double *y)
     d[2] += r1 + carry;
     
     /* convert d to two float64 */
-    //    printf("d=%016" PRIx64 " %016" PRIx64 "\n", d[2], d[1]);
+    /*    printf("d=%016" PRIx64 " %016" PRIx64 "\n", d[2], d[1]);*/
     if (d[2] == 0) {
         /* should never happen (see ARGUMENT REDUCTION FOR HUGE
            ARGUMENTS: Good to the Last Bit, K. C. Ng and the members
@@ -924,7 +926,7 @@ static int rem_pio2_large(double x, double *y)
         e = clz64(d[2]);
         d[2] = (d[2] << e) | (d[1] >> (64 - e));
         d[1] = (d[1] << e);
-        //        printf("d=%016" PRIx64 " %016" PRIx64 " e=%d\n", d[2], d[1], e);
+        /*        printf("d=%016" PRIx64 " %016" PRIx64 " e=%d\n", d[2], d[1], e);*/
         m0 = (d[2] >> 11) & (((uint64_t)1 << 52) - 1);
         m1 = ((d[2] & 0x7ff) << 42) | (d[1] >> (64 - 42));
         y[0] = uint64_as_float64(((uint64_t)y_sgn << 63) |
@@ -2257,4 +2259,3 @@ double js_pow(double x, double y)
 	w = v-(z-u);
         return s * kernel_exp(z, w, 0, z, n);
 }
-

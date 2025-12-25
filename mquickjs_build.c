@@ -35,7 +35,7 @@
 #include "list.h"
 #include "mquickjs_build.h"
 
-static unsigned JSW = 4; // override this with -m64
+static unsigned JSW = 4; /* override this with -m64*/
 
 typedef struct {
     char *str;
@@ -399,6 +399,7 @@ static void dump_cfinalizers(BuildContext *s)
     struct list_head *el;
     ClassDefEntry *e;
     
+    printf("#if (JS_CLASS_COUNT - JS_CLASS_USER) > 0\n");
     printf("static const JSCFinalizer js_c_finalizer_table[JS_CLASS_COUNT - JS_CLASS_USER] = {\n");
     list_for_each(el, &s->class_list) {
         e = list_entry(el, ClassDefEntry, link);
@@ -407,17 +408,20 @@ static void dump_cfinalizers(BuildContext *s)
             printf("  [%s - JS_CLASS_USER] = %s,\n", e->class_id, e->finalizer_name);
         }
     }
-    printf("};\n\n");
+    printf("};\n");
+    printf("#else\n");
+    printf("static const JSCFinalizer js_c_finalizer_table[1] = { 0 };\n");
+    printf("#endif\n\n");
 }
 
 typedef enum {
     PROPS_KIND_GLOBAL,
     PROPS_KIND_PROTO,
     PROPS_KIND_CLASS,
-    PROPS_KIND_OBJECT,
+    PROPS_KIND_OBJECT
 } JSPropsKindEnum;
 
-static inline uint32_t hash_prop(BuildContext *s, const char *name)
+static uint32_t hash_prop(BuildContext *s, const char *name)
 {
     /* Compute the hash for a symbol, must be consistent with
        mquickjs.c implementation.
@@ -474,7 +478,7 @@ static int define_props(BuildContext *s, const JSPropDef *props_def,
         hash_size = 1 << hash_size_log2;
         if (hash_size > ATOM_ALIGN / JSW) {
 #if !defined __APPLE__
-            // XXX: Cannot request data alignment larger than 64 bytes on Darwin
+            /* XXX: Cannot request data alignment larger than 64 bytes on Darwin*/
             fprintf(stderr, "Too many properties, consider increasing ATOM_ALIGN\n");
 #endif
             hash_size = ATOM_ALIGN / JSW;
@@ -712,9 +716,13 @@ static int define_value(BuildContext *s, const JSPropDef *d)
                     printf("\n");
                     s->cur_offset += 2;
                 } else {
-                    /* XXX: little endian assumed */
+#if defined(WORDS_BIGENDIAN)
+                    printf("  0x%08x,\n", (uint32_t)(v >> 32));
+                    printf("  0x%08x,\n", (uint32_t)v);
+#else
                     printf("  0x%08x,\n", (uint32_t)v);
                     printf("  0x%08x,\n", (uint32_t)(v >> 32));
+#endif
                     printf("\n");
                     s->cur_offset += 3;
                 }
@@ -838,11 +846,7 @@ int build_atoms(const char *stdlib_name, const JSPropDef *global_obj,
     BuildContext ss, *s = &ss;
     BOOL build_atom_defines = FALSE;
     
-#if INTPTR_MAX >= INT64_MAX
-    jsw = 8;
-#else
-    jsw = 4;
-#endif    
+    jsw = (sizeof(void *) >= 8) ? 8 : 4;
     for (i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-m64")) {
             jsw = 8;
