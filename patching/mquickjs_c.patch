@@ -1,0 +1,20 @@
+--- mquickjs.c  2025-12-24 17:08:23.038306334 +0000
++++ mquickjs.c.scratch  2025-12-24 17:08:58.638307117 +0000
+@@ -9224,7 +9224,7 @@
+     PARSE_POP_INT(s, var2);                                     \
+     PARSE_POP_INT(s, var1);
+ 
+-static JSParseFunc *parse_func_table[];
++static JSParseFunc *parse_func_table[12];
+ 
+ static void js_parse_call(JSParseState *s, ParseExprFuncEnum func_idx,
+                           int param)
+@@ -10847,7 +10847,7 @@
+     return PARSE_STATE_RET;
+ }
+ 
+-static JSParseFunc *parse_func_table[] = {
++static JSParseFunc *parse_func_table[12] = {
+     js_parse_expr_comma,
+     js_parse_assign_expr,
+     js_parse_cond_expr,
