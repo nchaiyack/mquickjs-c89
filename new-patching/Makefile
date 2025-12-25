@@ -3,10 +3,10 @@ all: patch build
 patch: patcher headers-32 prepare-patching-tree run-patcher
 clean: psychec-clean patcher-clean headers-clean prepare-patching-tree-clean
 
-### Config knobs
+### PREAMBLE: Config knobs
 CMAKE_BUILD_TYPE ?= Debug
 
-### Utility define
+### PREAMBLE: Utility define
 OS := $(shell uname -s 2>/dev/null || echo Unknown)
 ifeq ($(OS),Darwin)
 	DLEXT := dylib
@@ -28,7 +28,8 @@ else
 	LIBPFX := lib
 endif
 
-### Internal: dependency directories
+### PREAMBLE: internal - dependency directories
+
 SRC_DIR := ..
 GENERATE_HEADERS_PHASE_DIR := ./scratch-header-generation
 TO_PATCH_DIR := ./scratch-to-patch
@@ -80,7 +81,7 @@ headers-64:
 headers-clean:
 	rm -rf $(GENERATE_HEADERS_PHASE_DIR)
 
-#### STEP @: actual patching step - run the C89 patcher
+#### STEP 2: actual patching step - run the C89 patcher
 
 run-patcher: patcher prepare-patching-tree
 	@set -e; \
@@ -94,10 +95,11 @@ run-patcher: patcher prepare-patching-tree
 #### STEP 3 (not strictly required): test-build patched C89 sources on the
 #### host with C89 flags and Werror cranked up to the max. Not
 #### necessarily required if we're just after the patched sources.
+
 build:
 	cd ${PATCHED_DIR} && $(MAKE)
 
-#### Patcher (via CMake)
+#### DEPENDENCY: Patcher (via CMake)
 
 .PHONY: patcher patcher-clean
 # Build patcher after psychec to ensure the library exists
@@ -111,7 +113,7 @@ patcher: psychec
 patcher-clean:
 	rm -rf $(PATCHER_BUILD)
 
-#### Psyche-C
+#### DEPENDENCY: Psyche-C
 
 PSYCHEC_MAKE_FLAGS := -j 4
 
