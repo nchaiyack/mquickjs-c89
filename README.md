@@ -3,6 +3,14 @@
 This repository has been updated to prioritize strict C89 compatibility and
 make cross-platform builds more reproducible.
 
+## PROJECT STOPPED
+
+Portability work to date includes C89 compatibility patches, endianness
+configuration, and the guest build workflow. Current portability challenges
+remain significant, especially around reliance on native 64-bit integer types
+for core runtime and math logic. Addressing that would require a broad
+refactor, so the effort is paused for now.
+
 Key objectives
 
 - C89 compatibility patches: see `C89_PORTING_NOTES.md` for conventions and

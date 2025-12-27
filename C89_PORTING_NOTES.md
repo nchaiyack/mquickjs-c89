@@ -103,3 +103,30 @@ Use `WORDS_BIGENDIAN` to select big-endian behavior.
 - No `0x1p±N` literals.
 - Avoid `void *` arithmetic.
 - Use `offsetof` for variable-size structs.
+
+## Plain C89 / Non-GCC Compatibility (Tentative Findings)
+
+These notes are based on a static grep of the current tree. They are
+**tentative** and **non-exhaustive**; additional blockers may appear when
+porting to a specific non-GCC/Clang compiler.
+
+Observed non-C89 / non-portable dependencies:
+
+- **GCC/Clang attributes** in headers and sources:
+  - `__attribute__((unused))`, `__attribute__((packed))`,
+    `__attribute__((format))`, `__attribute__((noinline))`.
+  - Examples: `cutils.h`, `readline.h`, `mquickjs.c`.
+- **Compiler builtins**:
+  - `__builtin_clz`, `__builtin_ctz`, `__builtin_expect`,
+    `__builtin_add_overflow`, `__builtin_sub_overflow`.
+  - Examples: `cutils.h`, `mquickjs.c`.
+- **C99 headers and fixed-width types**:
+  - `<stdint.h>`, `<inttypes.h>`, and `uint64_t`/`int32_t` etc.
+  - Format macros like `PRIx64`, `PRIu64`.
+  - Examples: `mquickjs.h`, `dtoa.c`, `libm.c`, `mquickjs_build.c`.
+- **IEEE-754 and layout assumptions**:
+  - Bit-level float reinterpretation and packed structs.
+  - Examples: `cutils.h`, `libm.c`.
+
+If a target compiler lacks these facilities, expect to add a compatibility
+layer (e.g., in `porting.h`) or provide substitute headers/types.
